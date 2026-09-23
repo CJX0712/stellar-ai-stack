@@ -1,5 +1,12 @@
 # Stellar AI · 世界级模块化 AI 系统
 
+<p align="center">
+  <a href="https://github.com/CJX0712/stellar-ai-stack/actions/workflows/ci.yml"><img src="https://github.com/CJX0712/stellar-ai-stack/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
+  <a href="https://github.com/CJX0712/stellar-ai-stack/releases"><img src="https://img.shields.io/github/v/release/CJX0712/stellar-ai-stack?sort=semver" alt="release"></a>
+  <a href="https://github.com/CJX0712/stellar-ai-stack/blob/master/LICENSE"><img src="https://img.shields.io/github/license/CJX0712/stellar-ai-stack" alt="license"></a>
+  <img src="https://img.shields.io/badge/author-%E6%99%A8%E6%98%9F-1f6feb" alt="author">
+</p>
+
 > 端到端可实际运行的 **RAG（检索增强生成）+ ReAct 智能体** 平台。
 > 复用业界领先的开源范式（FastAPI 服务化、Protocol 注入式可插拔架构、混合检索、ReAct 智能体），
 > 不重复造轮子；核心价值在**架构、可验证性与可复现性**。
