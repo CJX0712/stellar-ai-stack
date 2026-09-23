@@ -1,0 +1,173 @@
+openapi: 3.1.0
+info:
+  title: Stellar AI
+  description: World-class modular RAG + ReAct agent system (zero-dependency default).
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      summary: Health and runtime stats
+      operationId: health_health_get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+  /ingest:
+    post:
+      summary: Ingest a document (raw text or a local file path)
+      operationId: ingest_ingest_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngestRequest"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /query:
+    post:
+      summary: Retrieval-augmented generation question answering
+      operationId: query_query_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryRequest"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /agent:
+    post:
+      summary: Run a task through the ReAct agent
+      operationId: agent_agent_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentRequest"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /:
+    get:
+      summary: Single-file HTML control console
+      operationId: index__get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            text/html:
+              schema:
+                type: string
+components:
+  schemas:
+    IngestRequest:
+      type: object
+      title: IngestRequest
+      properties:
+        text:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Text
+        title:
+          type: string
+          default: ""
+          title: Title
+        doc_id:
+          type: string
+          default: ""
+          title: Doc Id
+        file_path:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: File Path
+    QueryRequest:
+      type: object
+      title: QueryRequest
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          title: Question
+        top_n:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Top N
+    AgentRequest:
+      type: object
+      title: AgentRequest
+      required:
+        - task
+      properties:
+        task:
+          type: string
+          title: Task
+    HTTPValidationError:
+      type: object
+      title: HTTPValidationError
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+    ValidationError:
+      type: object
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          type: string
+        type:
+          type: string
+        input: {}
+        ctx:
+          type: object

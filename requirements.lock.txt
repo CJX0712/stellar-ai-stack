@@ -1,0 +1,29 @@
+﻿# Stellar AI - locked runtime + test dependency closure.
+# Verified installable on Python 3.13 (Windows + Linux). Reproduce with:
+#   python -m venv .venv && .venv/Scripts/pip install -r requirements.lock.txt
+# NOTE: PySocks is only required when pip must traverse a SOCKS tunnel
+# (this dev machine runs an frpc/ssh SOCKS5 proxy). On a normal network it
+# installs harmlessly and is a no-op at runtime.
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.15.1
+certifi==2026.7.22
+click==8.5.0
+colorama==0.4.6
+fastapi==0.141.1
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.20
+iniconfig==2.3.0
+packaging==26.3
+pluggy==1.6.0
+pydantic==2.13.5
+pydantic_core==2.46.5
+Pygments==2.21.0
+PySocks==1.7.1
+pytest==9.1.1
+starlette==1.7.0
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+uvicorn==0.53.0

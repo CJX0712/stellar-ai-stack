@@ -1,0 +1,11 @@
+# Stellar AI - optional production-grade model backends.
+# NOT part of the default zero-dependency run. Install on demand:
+#   pip install -r optional-requirements.txt
+# Then switch providers via environment variables (see ARCHITECTURE.md):
+#   STELLAR_EMBEDDING_PROVIDER=fastembed   (or sentence-transformers)
+#   STELLAR_VECTORSTORE_PROVIDER=faiss
+#   STELLAR_LLM_PROVIDER=openai            (or llamacpp / ollama)
+sentence-transformers>=2.5
+faiss-cpu>=1.8
+llama-cpp-python>=0.2
+pypdf>=4.0

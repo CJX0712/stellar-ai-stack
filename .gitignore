@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Project artifacts (local only, never committed)
+PySocks-*.whl
+*.log
+*.json.tmp
+.coverage
+.pytest_cache/
+.scaffold_ok
+dirs.txt
+freeze*.log
+install*.log
+pipconfig.log
+venv_*.log
+venv_scripts.txt
+freeze2.log
+pysocks_*.log
+fetch_pysocks.log
+verify_report.json
+bench_report.json
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Secrets
+.env
+*.secret

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stellar AI 控制台</title>
+<style>
+  :root { --bg:#0f1420; --panel:#171d2b; --line:#26304a; --txt:#e6ecff; --muted:#9aa6c4;
+          --accent:#5b8cff; --ok:#34d399; --warn:#fbbf24; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+         background:var(--bg); color:var(--txt); }
+  header { padding:18px 24px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:18px; margin:0; }
+  header .badge { font-size:12px; color:var(--muted); border:1px solid var(--line); padding:2px 8px; border-radius:999px; }
+  main { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:16px 24px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  h2 { font-size:14px; margin:0 0 10px; color:var(--accent); }
+  textarea, input { width:100%; background:#0c111c; color:var(--txt); border:1px solid var(--line);
+                    border-radius:8px; padding:10px; font-size:13px; resize:vertical; }
+  textarea { min-height:120px; }
+  button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:9px 16px;
+           font-size:13px; cursor:pointer; margin-top:10px; }
+  button:hover { filter:brightness(1.08); }
+  .row { display:flex; gap:8px; }
+  pre { background:#0c111c; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:12px;
+        white-space:pre-wrap; word-break:break-word; max-height:320px; overflow:auto; margin-top:10px; }
+  .meta { font-size:12px; color:var(--muted); margin-top:8px; }
+  .pill { display:inline-block; background:#0c111c; border:1px solid var(--line); border-radius:6px;
+          padding:2px 8px; margin:2px 4px 2px 0; font-size:11px; }
+  .full { grid-column:1 / -1; }
+  .status { font-size:12px; }
+  .ok { color:var(--ok); } .warn { color:var(--warn); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Stellar AI 控制台</h1>
+  <span class="badge" id="ver">v1.0.0</span>
+  <span class="badge" id="health">检测中…</span>
+</header>
+<main>
+  <div class="card">
+    <h2>1 · 摄入知识 (Ingest)</h2>
+    <textarea id="ingestText" placeholder="粘贴一段文档内容，或填写文件路径后点“按文件摄入”"></textarea>
+    <div class="row" style="margin-top:10px">
+      <input id="ingestTitle" placeholder="标题（可选）" />
+      <button onclick="ingestText()">摄入文本</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <input id="ingestFile" placeholder="本地文件路径，如 ./docs/intro.md" />
+      <button onclick="ingestFile()">按文件摄入</button>
+    </div>
+    <div class="meta" id="ingestMeta"></div>
+  </div>
+
+  <div class="card">
+    <h2>2 · 问答 (RAG Query)</h2>
+    <textarea id="qText" placeholder="输入问题，例如：恒星的主要成分是什么？"></textarea>
+    <div class="row" style="margin-top:10px">
+      <input id="qTopN" placeholder="top_n（默认 5）" />
+      <button onclick="query()">提问</button>
+    </div>
+    <pre id="qAnswer"></pre>
+  </div>
+
+  <div class="card full">
+    <h2>3 · 智能体 (Agent · ReAct)</h2>
+    <div class="row">
+      <input id="agentTask" placeholder="任务：算 12 * 34，或问“今天几号”，或“介绍一下量子计算”" style="flex:1" />
+      <button onclick="runAgent()">运行</button>
+    </div>
+    <pre id="agentOut"></pre>
+  </div>
+</main>
+
+<script>
+const api = (path, body) => fetch(path, {
+  method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+}).then(r => r.json().catch(()=>({error:r.status})));
+
+async function refreshHealth(){
+  try {
+    const h = await (await fetch('/health')).json();
+    document.getElementById('health').textContent =
+      `chunks=${h.chunks} docs=${h.docs} llm=${h.config.llm_provider}`;
+    document.getElementById('health').className = 'badge ok';
+  } catch(e){ document.getElementById('health').textContent = '未连接'; }
+}
+async function ingestText(){
+  const text = document.getElementById('ingestText').value;
+  const title = document.getElementById('ingestTitle').value;
+  const r = await api('/ingest', {text, title});
+  document.getElementById('ingestMeta').innerHTML =
+    r.ok ? `<span class="ok">已摄入，chunks=${r.chunks}</span>` : `<span class="warn">${r.error||'失败'}</span>`;
+  refreshHealth();
+}
+async function ingestFile(){
+  const file_path = document.getElementById('ingestFile').value;
+  const r = await api('/ingest', {file_path});
+  document.getElementById('ingestMeta').innerHTML =
+    r.ok ? `<span class="ok">已摄入 ${file_path}，chunks=${r.chunks}</span>` : `<span class="warn">${r.error||'失败'}</span>`;
+  refreshHealth();
+}
+async function query(){
+  const question = document.getElementById('qText').value;
+  const top_n = parseInt(document.getElementById('qTopN').value) || undefined;
+  const r = await api('/query', {question, top_n});
+  if (r.error){ document.getElementById('qAnswer').textContent = r.error; return; }
+  let out = `答：${r.answer}\n\n引用来源：\n`;
+  (r.citations||[]).forEach(c => out += `  · ${c.doc_id} (score ${c.score}) ${c.snippet}\n`);
+  document.getElementById('qAnswer').textContent = out;
+}
+async function runAgent(){
+  const task = document.getElementById('agentTask').value;
+  const r = await api('/agent', {task});
+  document.getElementById('agentOut').textContent = r.result ?? r.error ?? JSON.stringify(r);
+}
+refreshHealth();
+</script>
+</body>
+</html>

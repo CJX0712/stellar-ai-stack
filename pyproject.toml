@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stellar-ai"
+version = "1.0.0"
+description = "Stellar AI - a world-class, modular, end-to-end runnable RAG + ReAct agent system"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "晨星" }]
+keywords = ["ai", "rag", "agent", "llm", "retrieval", "embeddings", "vector-search"]
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+# Production-grade real models. NOT required for the default zero-dependency run.
+# Install on demand: pip install -r optional-requirements.txt
+realmodels = [
+    "sentence-transformers>=2.5",
+    "faiss-cpu>=1.8",
+    "llama-cpp-python>=0.2",
+    "pypdf>=4.0",
+]
+
+[project.scripts]
+stellar-ai = "stellar_ai.cli.main:main"
+
+[tool.setuptools.packages.find]
+include = ["stellar_ai*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
